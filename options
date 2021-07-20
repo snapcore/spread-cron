@@ -1,2 +1,2 @@
-pattern_extractor="if [ $(date +%H%M) \< "0800" ]; then echo ""; else date +%V; fi"
-message="Update GCE spread bucket"
+pattern_extractor="git ls-remote https://github.com/snapcore/spread.git refs/heads/master | cut -f 1"
+message="Build spread binary"

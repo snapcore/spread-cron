@@ -1,0 +1,44 @@
+summary: Update the gce test bucket
+
+systems: [ubuntu-20.04-64]
+
+environment:
+    GOVERSION: 1.13.8
+    GOHOME: /home/test
+    GOPATH: $GOHOME
+    PATH: $GOHOME/bin:$PATH
+
+prepare: |
+    # Download spread code
+    apt install -y git
+    git clone https://github.com/snapcore/spread.git
+
+    # Install go dependencies
+    apt install -y xdelta3
+    wget https://godeb.s3.amazonaws.com/godeb-amd64.tar.gz
+    tar xzvf godeb-amd64.tar.gz
+    ./godeb download $GOVERSION
+    dpkg -i tests/cache/go_$GOVERSION-*.deb
+
+    # Prepare to upload files to gs bucket
+    snap install google-cloud-sdk
+    gcloud auth activate-service-account --key-file="$PROJECT_PATH/sa.json"
+    rm -f "$PROJECT_PATH/sa.json"    
+
+restore: |
+    rm -rf godeb spread-amd64.tar.gz    
+   
+execute: |
+    # Cache Go deb with: cd tests/cache && godeb download $GOVERSION
+    go get ./spread/cmd/spread
+
+    # Check spread is created and it is executable
+    test -x spread
+
+    # Back up previous spread
+    gsutil mv gs://snapd-spread-tests/spread/spread-amd64.tar.gz gs://snapd-spread-tests/spread/spread-amd64-old.tar.gz
+
+
+    # Prepare spread and push to 
+    tar -czvf spread-amd64.tar.gz spread
+    gsutil cp spread-amd64.tar.gz gs://snapd-spread-tests/spread/spread-amd64.tar.gz.test
