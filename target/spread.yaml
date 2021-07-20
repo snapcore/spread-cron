@@ -1,9 +1,9 @@
 project: build-spread
 
-path: /root/spread
+path: /home/test
 
 environment:
-    PROJECT_PATH: /root/spread
+    PROJECT_PATH: /home/test
 
 backends:
     google:
