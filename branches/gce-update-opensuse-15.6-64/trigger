@@ -1,0 +1,2 @@
+pattern_extractor="if [ $(date +%H%M) \< "0930" ]; then echo ""; else date +%V; fi"
+message="Update Opensuse 15.6 64bits on GCE"
